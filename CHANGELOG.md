@@ -1,5 +1,15 @@
 # Changelog
 
+
+## [0.6.0] — 2026-08-24
+
+### Changed
+- **Renamed from `pyHRG`.** The import name is now `pycacumen`, so this is a
+  breaking change for anything that imported the old one. Nothing else moved:
+  the algorithms, the outputs and the cross-language agreement with the R twin
+  are unchanged.
+
+
 ## [0.5.2] — 2026-07-22
 
 ### Fixed
