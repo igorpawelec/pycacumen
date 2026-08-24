@@ -1,8 +1,8 @@
 """
-pyhrg.io — reading CHM rasters and exporting crowns and tree tops.
+pycacumen.io — reading CHM rasters and exporting crowns and tree tops.
 
-All disk access lives here; :mod:`pyhrg.hrg`, :mod:`pyhrg.chm` and
-:mod:`pyhrg.treetops` work on plain arrays. rasterio and fiona are
+All disk access lives here; :mod:`pycacumen.hrg`, :mod:`pycacumen.chm` and
+:mod:`pycacumen.treetops` work on plain arrays. rasterio and fiona are
 imported lazily so that the array-based API stays usable without them.
 
 Copyright (C) 2025 Igor Pawelec

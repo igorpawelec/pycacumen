@@ -1,7 +1,7 @@
 """
-pyhrg.cli — command line interface.
+pycacumen.cli — command line interface.
 
-    pyhrg -i chm.tif -o crowns.tif --hmin 7 --variance-thresh 2.0
+    pycacumen -i chm.tif -o crowns.tif --hmin 7 --variance-thresh 2.0
 
 Copyright (C) 2025 Igor Pawelec
 Licence: GPLv3 — see LICENSE.
@@ -15,7 +15,7 @@ __all__ = ["build_parser", "main"]
 
 def build_parser():
     p = argparse.ArgumentParser(
-        prog="pyhrg",
+        prog="pycacumen",
         description="Delineate tree crowns from a canopy height model "
                     "using Hierarchical Region Growing.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -75,11 +75,11 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     if args.version:
-        from pyhrg import __version__
-        print(f"pyhrg {__version__}")
+        from pycacumen import __version__
+        print(f"pycacumen {__version__}")
         return 0
 
-    from pyhrg import CrownDelineator
+    from pycacumen import CrownDelineator
 
     try:
         cd = CrownDelineator.from_file(args.input, window=args.window,
@@ -103,7 +103,7 @@ def main(argv=None):
         if args.vector:
             cd.to_vector(args.vector)
     except (OSError, ValueError) as e:
-        print(f"pyhrg: error: {e}", file=sys.stderr)
+        print(f"pycacumen: error: {e}", file=sys.stderr)
         return 1
     return 0
 

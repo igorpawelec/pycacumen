@@ -1,8 +1,8 @@
-"""Tests for pyhrg.hrg — the algorithm itself."""
+"""Tests for pycacumen.hrg — the algorithm itself."""
 import numpy as np
 import pytest
 
-from pyhrg.hrg import (
+from pycacumen.hrg import (
     HierarchicalRegionGrower, resolve_conflicts, CONFLICT_RULES, _merge_stats,
 )
 
@@ -213,17 +213,17 @@ class TestMaxItersDefault:
         return chm
 
     def _tops(self, sm):
-        from pyhrg import detect_tops, as_pixels
+        from pycacumen import detect_tops, as_pixels
         return as_pixels(detect_tops(sm, hmin=5, ws=5))
 
     def test_default_is_unbounded(self):
-        from pyhrg import HierarchicalRegionGrower
+        from pycacumen import HierarchicalRegionGrower
         import inspect
         sig = inspect.signature(HierarchicalRegionGrower.run_all)
         assert sig.parameters["max_iters"].default is None
 
     def test_a_binding_cap_warns(self):
-        from pyhrg import smooth_chm, HierarchicalRegionGrower
+        from pycacumen import smooth_chm, HierarchicalRegionGrower
         sm = smooth_chm(self._scene(), ws=3, method="median")
         tops = self._tops(sm)
         with pytest.warns(UserWarning, match="max_iters"):
@@ -231,7 +231,7 @@ class TestMaxItersDefault:
                 tops, variance_thresh=20.0, mask_thresh=1.0, max_iters=1)
 
     def test_a_cap_that_does_not_bind_is_silent(self):
-        from pyhrg import smooth_chm, HierarchicalRegionGrower
+        from pycacumen import smooth_chm, HierarchicalRegionGrower
         import warnings
         sm = smooth_chm(self._scene(), ws=3, method="median")
         tops = self._tops(sm)
@@ -242,7 +242,7 @@ class TestMaxItersDefault:
 
     def test_truncating_changes_the_crown_count(self):
         """The point of the fix, stated as a test."""
-        from pyhrg import smooth_chm, HierarchicalRegionGrower
+        from pycacumen import smooth_chm, HierarchicalRegionGrower
         import warnings
         sm = smooth_chm(self._scene(), ws=3, method="median")
         tops = self._tops(sm)

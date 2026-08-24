@@ -1,5 +1,5 @@
 """
-pyhrg.chm — canopy height model smoothing.
+pycacumen.chm — canopy height model smoothing.
 
 A raw CHM carries pit noise and spurious local maxima: a single laser
 return through a gap, or the ragged upper surface of a crown, both create
@@ -47,7 +47,7 @@ def smooth_chm(chm, ws=3, method="median"):
         - ``'gaussian'`` — smooth falloff, sigma = ws / 3.
         - ``'maximum'`` — dilates crowns; flattens the apex, so tops are
           detected as plateaus rather than points. Rarely what you want
-          before :func:`pyhrg.treetops.detect_tops`.
+          before :func:`pycacumen.treetops.detect_tops`.
 
     Returns
     -------
@@ -140,7 +140,7 @@ def _smooth_with_nan(ndimage, chm, ws, method):
     # means the *kernel* reached nothing, and the kernel is wider than ws --
     # 4 sigma either side -- so the test is the denominator rather than a
     # ws-sized window. Using ws there would have marked 7663 cells empty
-    # against the 5889 the kernel actually fails to reach, and put rHRG and
+    # against the 5889 the kernel actually fails to reach, and put rcacumen and
     # this package 1774 pixels apart.
     if method == "gaussian":
         empty = count == 0

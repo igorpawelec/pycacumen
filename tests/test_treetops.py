@@ -1,9 +1,9 @@
-"""Tests for pyhrg.chm and pyhrg.treetops."""
+"""Tests for pycacumen.chm and pycacumen.treetops."""
 import numpy as np
 import pytest
 
-from pyhrg.chm import smooth_chm, SMOOTHING_METHODS
-from pyhrg.treetops import detect_tops, merge_tops, screen_tops, as_pixels
+from pycacumen.chm import smooth_chm, SMOOTHING_METHODS
+from pycacumen.treetops import detect_tops, merge_tops, screen_tops, as_pixels
 
 
 class TestSmoothing:

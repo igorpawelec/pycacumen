@@ -18,7 +18,7 @@
 - **0.5.0 did not import at all on Python 3.9.** `max_iters: int | None` is
   PEP 604, which before 3.10 is a runtime expression: `TypeError: unsupported
   operand type(s) for |: 'type' and 'NoneType'`, raised while the class body
-  executes, so `import pyhrg.hrg` failed outright. `pyproject.toml` claims
+  executes, so `import pycacumen.hrg` failed outright. `pyproject.toml` claims
   `requires-python = ">=3.9"`. Now `Optional[int]`.
 
   It reached a tag because development runs on 3.12 and every local test
@@ -50,7 +50,7 @@
   stays NaN. The fast path still runs whenever the CHM has no NaN, so a
   clean raster costs nothing and gives byte-identical results to before.
 
-  Found while fixing rHRG, which crashed on the same input. Neither was
+  Found while fixing rcacumen, which crashed on the same input. Neither was
   right: R failed loudly with an unhelpful message, Python produced
   plausible garbage. Both now agree, and the shared cross-check gained ten
   scenes with nodata holes so the path is actually covered.
@@ -118,7 +118,7 @@
   happened, so this raises rather than warns. `method="gaussian"` is exempt:
   `ws` only scales sigma there and the kernel stays symmetric.
 
-  The same guard went into rHRG, which reproduced the asymmetry faithfully.
+  The same guard went into rcacumen, which reproduced the asymmetry faithfully.
 
 
 All notable changes to this project are documented here.
@@ -127,7 +127,7 @@ and the project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [0.1.0] — 2026-07-15
 
-First release. pyHRG supersedes `pycrown_simplified`, which is archived.
+First release. pycacumen supersedes `pycrown_simplified`, which is archived.
 
 ### Added
 - `CrownDelineator` — chainable pipeline: smooth → detect → merge → screen → delineate.
@@ -142,14 +142,14 @@ First release. pyHRG supersedes `pycrown_simplified`, which is archived.
 - `retry_rejected` — reconsider regions rejected earlier in a grow.
 - `n_contested` — how many regions were claimed by more than one crown.
 - `read_chm()` with windowed reads, for rasters that do not fit in memory.
-- Command line: `pyhrg -i chm.tif -o crowns.tif`, and `python -m pyhrg`.
+- Command line: `pycacumen -i chm.tif -o crowns.tif`, and `python -m pycacumen`.
 - Test suite (65 tests) and CI.
 
 ### Changed
 - **Split from PyCrown's structure.** Hierarchical region growing is now the
   only delineation method (see *Removed*). Smoothing, tree top detection and
   the algorithm each live in their own module, and none of them touch the disk
-  — file access is confined to `pyhrg.io`.
+  — file access is confined to `pycacumen.io`.
 - **Contested regions are arbitrated, not overwritten.** Previously the crown
   with the higher id silently won, so which of two merging trees survived
   depended on tree-top ordering.
@@ -193,5 +193,5 @@ First release. pyHRG supersedes `pycrown_simplified`, which is archived.
   [PyCrown](https://github.com/manaakiwhenua/pycrown),
   [lidR](https://github.com/r-lidar/lidR) and
   [itcSegment](https://cran.r-project.org/package=itcSegment); duplicating it
-  here served no one. pyHRG does one thing.
-- Point cloud I/O. pyHRG takes a CHM raster and returns crowns.
+  here served no one. pycacumen does one thing.
+- Point cloud I/O. pycacumen takes a CHM raster and returns crowns.

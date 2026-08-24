@@ -1,6 +1,6 @@
-# conda env create -f environment.yaml && conda activate pyhrg
+# conda env create -f environment.yaml && conda activate pycacumen
 # then: pip install --no-deps -e .
-name: pyhrg
+name: pycacumen
 channels:
   - conda-forge
 dependencies:

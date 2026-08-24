@@ -1,6 +1,6 @@
 """The package claims requires-python >= 3.9. Check that it means it.
 
-pyHRG 0.5.0 shipped ``max_iters: int | None`` and did not import at all on
+pycacumen 0.5.0 shipped ``max_iters: int | None`` and did not import at all on
 3.9: PEP 604 in an annotation is a runtime expression before 3.10. It was
 invisible here because development runs on 3.12, and CI caught it only after
 the tag. These tests reproduce the two ways a file can be 3.9-illegal while
@@ -13,7 +13,7 @@ import ast
 import pathlib
 import unittest
 
-PKG = pathlib.Path(__file__).resolve().parent.parent / "pyhrg"
+PKG = pathlib.Path(__file__).resolve().parent.parent / "pycacumen"
 SOURCES = sorted(PKG.rglob("*.py"))
 
 

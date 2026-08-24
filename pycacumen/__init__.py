@@ -1,5 +1,5 @@
 """
-pyHRG — individual tree crown delineation from canopy height models.
+pycacumen — individual tree crown delineation from canopy height models.
 
 Crowns are delineated by Hierarchical Region Growing: a marker-based
 watershed seeded with tree tops, a weighted region adjacency graph over
@@ -9,7 +9,7 @@ corrected.
 
 Quick start::
 
-    from pyhrg import CrownDelineator
+    from pycacumen import CrownDelineator
 
     cd = CrownDelineator.from_file("chm.tif")
     cd.smooth(ws=3).detect(hmin=7, ws=5).merge(5.0).screen(10.0)
@@ -18,12 +18,12 @@ Quick start::
 
 or, in one call::
 
-    from pyhrg import delineate_crowns
+    from pycacumen import delineate_crowns
     crowns, tops = delineate_crowns("chm.tif", hmin=7, merge_distance=5.0)
 
 Every stage is also a plain function on arrays::
 
-    from pyhrg import smooth_chm, detect_tops, HierarchicalRegionGrower
+    from pycacumen import smooth_chm, detect_tops, HierarchicalRegionGrower
 
 Copyright (C) 2025 Igor Pawelec
 Licence: GPLv3 — see LICENSE.
@@ -32,7 +32,7 @@ Licence: GPLv3 — see LICENSE.
 try:
     from importlib.metadata import version, PackageNotFoundError
     try:
-        __version__ = version("pyhrg")
+        __version__ = version("pycacumen")
     except PackageNotFoundError:  # not installed, e.g. running from source
         __version__ = "0.5.2"
 except ImportError:  # pragma: no cover
@@ -47,7 +47,7 @@ _DEPS_HINT = (
 )
 
 # Heavy dependencies (numba, skimage) are pulled in on first use rather
-# than at import time, so `import pyhrg` stays fast and a broken optional
+# than at import time, so `import pycacumen` stays fast and a broken optional
 # dependency surfaces where it is actually needed.
 _LAZY = {
     "smooth_chm": ".chm",
@@ -77,7 +77,7 @@ def __getattr__(name):
         mod = import_module(module, __name__)
     except (ImportError, OSError) as e:
         raise ImportError(
-            f"cannot import {name!r} from pyhrg{module}: {e}\n"
+            f"cannot import {name!r} from pycacumen{module}: {e}\n"
             f"Install the dependencies with:\n  {_DEPS_HINT}"
         ) from e
     value = getattr(mod, name)

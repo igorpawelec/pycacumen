@@ -1,5 +1,5 @@
 """
-pyhrg.hrg — Hierarchical Region Growing for tree crown delineation.
+pycacumen.hrg — Hierarchical Region Growing for tree crown delineation.
 
 The algorithm in three stages:
 
@@ -32,14 +32,14 @@ Beucher, S., Meyer, F. (1993). The morphological approach to
 
 Copyright (C) 2025 Igor Pawelec
 
-This file is part of pyHRG.
+This file is part of pycacumen.
 
-pyHRG is free software: you can redistribute it and/or modify it under
+pycacumen is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free
 Software Foundation, either version 3 of the License, or (at your option)
 any later version.
 
-pyHRG is distributed in the hope that it will be useful, but WITHOUT ANY
+pycacumen is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 details: <https://www.gnu.org/licenses/>.
@@ -563,9 +563,9 @@ class HierarchicalRegionGrower:
       reproducible regardless of the order the tree tops arrive in.
 
     This class operates purely on arrays and never touches the disk;
-    reading and writing rasters lives in :mod:`pyhrg.io`. Smoothing is not
+    reading and writing rasters lives in :mod:`pycacumen.io`. Smoothing is not
     applied here either — pass an already-smoothed CHM if you want one
-    (see :func:`pyhrg.chm.smooth_chm`).
+    (see :func:`pycacumen.chm.smooth_chm`).
 
     Parameters
     ----------

@@ -1,4 +1,4 @@
-"""Allow `python -m pyhrg`."""
+"""Allow `python -m pycacumen`."""
 import sys
 
 from .cli import main

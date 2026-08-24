@@ -1,16 +1,16 @@
 """The version must be one number, not four that agree by hand.
 
-GeoPalette shipped 0.5.0 and 0.6.0 with ``__version__`` still reading 0.4.0,
-and rHRG's CITATION.cff sat two releases behind DESCRIPTION. Both times the
+pygeopalette shipped 0.5.0 and 0.6.0 with ``__version__`` still reading 0.4.0,
+and rcacumen's CITATION.cff sat two releases behind DESCRIPTION. Both times the
 bump edited the places someone remembered instead of searching for the old
-number, and nothing was checking. pyHRG's four declarations agree today;
+number, and nothing was checking. pycacumen's four declarations agree today;
 this is what keeps them agreeing.
 
-What this compares needs care. ``pyhrg.__version__`` is read from the
+What this compares needs care. ``pycacumen.__version__`` is read from the
 installed distribution's metadata, with a string literal as the fallback::
 
     try:
-        __version__ = _version("pyhrg")
+        __version__ = _version("pycacumen")
     except Exception:
         __version__ = "0.5.1"
 
@@ -30,7 +30,7 @@ import re
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-PKG = ROOT / "pyhrg" / "__init__.py"
+PKG = ROOT / "pycacumen" / "__init__.py"
 
 
 def _pyproject_version():

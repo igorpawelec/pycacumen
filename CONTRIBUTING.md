@@ -1,4 +1,4 @@
-# Contributing to pyHRG
+# Contributing to pycacumen
 
 Bug reports, ideas and pull requests are all welcome.
 
@@ -9,7 +9,7 @@ Please include:
 - what you expected and what happened,
 - the raster's shape, dtype and value range — most surprises trace back to
   nodata, units or an unexpected CHM range,
-- versions: `python -c "import pyhrg, numpy, numba; print(pyhrg.__version__, numpy.__version__, numba.__version__)"`.
+- versions: `python -c "import pycacumen, numpy, numba; print(pycacumen.__version__, numpy.__version__, numba.__version__)"`.
 
 A CHM that triggers the problem helps enormously. A synthetic one that
 reproduces it helps even more.
@@ -18,7 +18,7 @@ reproduces it helps even more.
 
 ```bash
 conda env create -f environment.yaml
-conda activate pyhrg
+conda activate pycacumen
 pip install --no-deps -e ".[dev]"
 pytest tests/ -v
 ```
@@ -31,9 +31,9 @@ its own build environment, so this only bites if you build with
 ## Pull requests
 
 - Add a test that fails before your change and passes after.
-- Keep `pyflakes pyhrg/*.py` clean.
+- Keep `pyflakes pycacumen/*.py` clean.
 - The algorithm modules (`chm`, `treetops`, `hrg`) work on arrays and must
-  not import rasterio or fiona — file access belongs in `pyhrg.io`.
+  not import rasterio or fiona — file access belongs in `pycacumen.io`.
 - If you change what the segmentation produces, say so in the PR and in
   `CHANGELOG.md`. Silent changes to output are the hardest kind to debug for
   anyone with a pipeline in flight.
@@ -43,11 +43,11 @@ its own build environment, so this only bites if you build with
 
 The checklist exists because of a specific failure. `max_iters` changed
 default in 0.3.0, and that one change broke CI in two packages at once —
-pyHRG with `int | None`, which is a runtime `TypeError` before Python 3.10
-while the metadata claims `>=3.9`, and rHRG with a stale `man/` page. Neither
-was noticed. **pyHRG then tagged 0.3.0, 0.4.0 and 0.5.0 with the workflow
+pycacumen with `int | None`, which is a runtime `TypeError` before Python 3.10
+while the metadata claims `>=3.9`, and rcacumen with a stale `man/` page. Neither
+was noticed. **pycacumen then tagged 0.3.0, 0.4.0 and 0.5.0 with the workflow
 red**, so three releases could not be imported on the minimum Python they
-advertise. rHRG shipped two the same way, rgeoadaptels two more.
+advertise. rcacumen shipped two the same way, rgeoadaptels two more.
 
 Local tests passed in every one of those cases. They were run on one
 interpreter, on one operating system, by someone who already knew what the
@@ -83,12 +83,12 @@ history either way.
 
 ## Scope
 
-pyHRG delineates crowns from a CHM by hierarchical region growing. It is
+pycacumen delineates crowns from a CHM by hierarchical region growing. It is
 deliberately narrow. Other delineation algorithms, point cloud processing and
 CHM generation are out of scope — PyCrown, lidR and itcSegment already cover
 that ground well.
 
 ## Licence
 
-pyHRG is GPLv3, inherited from PyCrown. Contributions are accepted under the
+pycacumen is GPLv3, inherited from PyCrown. Contributions are accepted under the
 same licence.

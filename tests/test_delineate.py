@@ -1,8 +1,8 @@
-"""Tests for pyhrg.delineate and pyhrg.io."""
+"""Tests for pycacumen.delineate and pycacumen.io."""
 import numpy as np
 import pytest
 
-from pyhrg.delineate import CrownDelineator, delineate_crowns
+from pycacumen.delineate import CrownDelineator, delineate_crowns
 
 rasterio = pytest.importorskip("rasterio", reason="file I/O needs rasterio")
 from rasterio.transform import from_origin  # noqa: E402
@@ -110,7 +110,7 @@ class TestOneShot:
 class TestIO:
 
     def test_read_chm(self, chm_file):
-        from pyhrg.io import read_chm
+        from pycacumen.io import read_chm
         path, chm, _ = chm_file
         arr, transform, crs = read_chm(path)
         assert arr.shape == chm.shape
@@ -118,7 +118,7 @@ class TestIO:
         assert crs.to_epsg() == 2180
 
     def test_window_shifts_transform(self, chm_file):
-        from pyhrg.io import read_chm
+        from pycacumen.io import read_chm
         path, _, _ = chm_file
         full, t_full, _ = read_chm(path)
         win, t_win, _ = read_chm(path, window=(10, 20, 30, 40))
@@ -149,11 +149,11 @@ class TestIO:
 class TestCLI:
 
     def test_help(self):
-        from pyhrg.cli import build_parser
-        assert build_parser().prog == "pyhrg"
+        from pycacumen.cli import build_parser
+        assert build_parser().prog == "pycacumen"
 
     def test_runs(self, chm_file, tmp_path):
-        from pyhrg.cli import main
+        from pycacumen.cli import main
         path, _, _ = chm_file
         out = tmp_path / "cli.tif"
         rc = main(["-i", str(path), "-o", str(out), "--hmin", "5",
@@ -163,7 +163,7 @@ class TestCLI:
         assert out.exists()
 
     def test_missing_input_reports_error(self, tmp_path):
-        from pyhrg.cli import main
+        from pycacumen.cli import main
         rc = main(["-i", str(tmp_path / "nope.tif"),
                    "-o", str(tmp_path / "o.tif"), "-q"])
         assert rc == 1
@@ -200,7 +200,7 @@ class TestCrownCountReporting:
                              [(0.0, True, True), (10.0, False, False)])
     def test_reported_count_matches_the_array(self, base, gap, has_background,
                                               capsys):
-        from pyhrg import CrownDelineator
+        from pycacumen import CrownDelineator
         chm = self._two_trees(base, gap)
         d = CrownDelineator(chm, quiet=False)
         crowns = d.smooth(ws=3).detect(hmin=5, ws=5).delineate(
@@ -231,7 +231,7 @@ class TestTreeTopExportPosition:
         pytest.importorskip("fiona")
         import json
         from rasterio.transform import xy
-        from pyhrg.io import save_tree_tops
+        from pycacumen.io import save_tree_tops
 
         path, _, _ = chm_file
         with rasterio.open(path) as src:

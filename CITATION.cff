@@ -1,8 +1,8 @@
 cff-version: "1.2.0"
 message: "If you use this software, please cite it as below."
-title: "pyHRG: individual tree crown delineation from canopy height models by Hierarchical Region Growing"
+title: "pycacumen: individual tree crown delineation from canopy height models by Hierarchical Region Growing"
 abstract: >-
-  pyHRG delineates individual tree crowns from a canopy height model. Tree
+  pycacumen delineates individual tree crowns from a canopy height model. Tree
   tops seed a marker-based watershed; the resulting regions form a
   weighted region adjacency graph; crowns then grow greedily under a
   height-variance constraint, merging neighbouring trees where the canopy
@@ -12,7 +12,7 @@ type: software
 version: "0.5.2"
 date-released: "2026-07-22"
 license: "GPL-3.0-or-later"
-repository-code: "https://github.com/igorpawelec/pyhrg"
+repository-code: "https://github.com/igorpawelec/pycacumen"
 authors:
   - family-names: "Pawelec"
     given-names: "Igor"
@@ -29,9 +29,9 @@ keywords:
   - remote sensing
 
 references:
-  # Heritage: pyHRG began as a fork of PyCrown, whose pipeline structure
+  # Heritage: pycacumen began as a fork of PyCrown, whose pipeline structure
   # (smooth CHM -> local-maxima tree tops -> crown delineation) it keeps.
-  # PyCrown's Dalponte & Coomes delineation is not part of pyHRG.
+  # PyCrown's Dalponte & Coomes delineation is not part of pycacumen.
   - type: software
     title: "PyCrown - Fast raster-based individual tree segmentation for LiDAR data"
     authors:
@@ -48,7 +48,7 @@ references:
       name: "Landcare Research NZ Ltd"
     doi: "10.7931/M0SR-DN55"
     license: "GPL-3.0-only"
-    notes: "Upstream project; pyHRG is a derivative work and inherits GPLv3."
+    notes: "Upstream project; pycacumen is a derivative work and inherits GPLv3."
 
   - type: article
     title: "LiDAR-based regional inventory of tall trees - Wellington, New Zealand"

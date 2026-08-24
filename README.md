@@ -1,6 +1,6 @@
-# PyHRG
+# pycacumen
 
-<img src="https://raw.githubusercontent.com/igorpawelec/pyhrg/main/www/logopy.png" alt="pyHRG logo" align="right" width="200"/>
+<img src="https://raw.githubusercontent.com/igorpawelec/pycacumen/main/www/logopy.png" alt="pycacumen logo" align="right" width="200"/>
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org)
@@ -9,13 +9,13 @@
 
 Pure Python + Numba. No compiled extensions, no external binaries.
 
-> **R users:** an R implementation of the same algorithm lives in [rHRG](https://github.com/igorpawelec/rhrg). The two are separate packages by design — installation, tooling and idioms differ too much to share a repository — but they implement the same method and are validated against each other — exactly on the shared synthetic suite, and to within 0.25 % of watershed pixels on real canopy height models, where the two break plateau ties differently.
+> **R users:** an R implementation of the same algorithm lives in [rcacumen](https://github.com/igorpawelec/rcacumen). The two are separate packages by design — installation, tooling and idioms differ too much to share a repository — but they implement the same method and are validated against each other — exactly on the shared synthetic suite, and to within 0.25 % of watershed pixels on real canopy height models, where the two break plateau ties differently.
 
 ## Background
 
 Delineating individual crowns from a canopy height model runs into one persistent problem: **tree tops are over-detected**. A single broad crown has a ragged upper surface, so local-maximum detection finds several peaks on it. Lower the sensitivity and you start losing real trees instead.
 
-pyHRG treats that as the central problem rather than a preprocessing nuisance. Surplus tree tops are allowed, and the growing merges them back:
+pycacumen treats that as the central problem rather than a preprocessing nuisance. Surplus tree tops are allowed, and the growing merges them back:
 
 1. **Watershed.** Tree tops seed a marker-based watershed on the inverted CHM. This yields *exactly one region per tree top* — so the regions **are** the detected trees.
 2. **Region adjacency graph.** Neighbouring regions get a weighted edge,
@@ -27,11 +27,11 @@ pyHRG treats that as the central problem rather than a preprocessing nuisance. S
 
 ### Relation to PyCrown
 
-pyHRG began as a fork of [PyCrown](https://github.com/manaakiwhenua/pycrown) (Zörner et al. 2018) and keeps its pipeline shape — smooth the CHM, find tree tops as local maxima, delineate crowns. **The Dalponte & Coomes delineation that PyCrown re-implements is not part of pyHRG**; hierarchical region growing is the only method here. If you want Dalponte, use PyCrown, [lidR](https://github.com/r-lidar/lidR) or [itcSegment](https://cran.r-project.org/package=itcSegment) — they do it well and there is no reason to duplicate them.
+pycacumen began as a fork of [PyCrown](https://github.com/manaakiwhenua/pycrown) (Zörner et al. 2018) and keeps its pipeline shape — smooth the CHM, find tree tops as local maxima, delineate crowns. **The Dalponte & Coomes delineation that PyCrown re-implements is not part of pycacumen**; hierarchical region growing is the only method here. If you want Dalponte, use PyCrown, [lidR](https://github.com/r-lidar/lidR) or [itcSegment](https://cran.r-project.org/package=itcSegment) — they do it well and there is no reason to duplicate them.
 
 Differences from that lineage worth knowing:
 
-| | PyCrown | pyHRG |
+| | PyCrown | pycacumen |
 |---|---|---|
 | Delineation | Dalponte & Coomes | Hierarchical Region Growing |
 | Over-detected tops | filtered out beforehand | merged by the growing |
@@ -44,7 +44,7 @@ Native dependencies come from conda; pip then installs the package without touch
 
 ```bash
 conda install -c conda-forge numpy numba scipy scikit-image rasterio fiona
-pip install --no-deps git+https://github.com/igorpawelec/pyhrg.git
+pip install --no-deps git+https://github.com/igorpawelec/pycacumen.git
 ```
 
 The algorithm itself needs only numpy, numba, scipy and scikit-image. `rasterio` and `fiona` are used solely for reading and writing files — the array API works without them.
@@ -52,7 +52,7 @@ The algorithm itself needs only numpy, numba, scipy and scikit-image. `rasterio`
 ## Quick start
 
 ```python
-from pyhrg import CrownDelineator
+from pycacumen import CrownDelineator
 
 cd = CrownDelineator.from_file("chm.tif")
 cd.smooth(ws=3).detect(hmin=7, ws=5).merge(5.0).screen(10.0)
@@ -65,7 +65,7 @@ cd.to_vector("out/", name="crowns")
 One call, if you do not need the intermediate state:
 
 ```python
-from pyhrg import delineate_crowns
+from pycacumen import delineate_crowns
 
 crowns, tops = delineate_crowns("chm.tif", hmin=7, merge_distance=5.0,
                                 variance_thresh=2.0)
@@ -77,7 +77,7 @@ Every stage is a plain function. Nothing in the algorithm needs a file path:
 
 ```python
 import numpy as np
-from pyhrg import smooth_chm, detect_tops, as_pixels, HierarchicalRegionGrower
+from pycacumen import smooth_chm, detect_tops, as_pixels, HierarchicalRegionGrower
 
 chm = np.load("chm.npy")
 smoothed = smooth_chm(chm, ws=3, method="median")
@@ -100,9 +100,9 @@ cd = CrownDelineator.from_file("big_chm.tif", window=(1000, 500, 2000, 2000))
 ### Command line
 
 ```bash
-pyhrg -i chm.tif -o crowns.tif --hmin 7 --variance-thresh 2.0
-pyhrg -i chm.tif -o crowns.tif --vector out/ --merge-distance 5 --screen-hmin 10
-python -m pyhrg --help
+pycacumen -i chm.tif -o crowns.tif --hmin 7 --variance-thresh 2.0
+pycacumen -i chm.tif -o crowns.tif --vector out/ --merge-distance 5 --screen-hmin 10
+python -m pycacumen --help
 ```
 
 ## Parameters
@@ -183,10 +183,10 @@ pytest tests/ -v
 ## Repository structure
 
 ```
-pyhrg/
-├── pyhrg/
+pycacumen/
+├── pycacumen/
 │   ├── __init__.py      # public API (lazy imports)
-│   ├── __main__.py      # python -m pyhrg
+│   ├── __main__.py      # python -m pycacumen
 │   ├── chm.py           # CHM smoothing
 │   ├── treetops.py      # detection, merging, screening
 │   ├── hrg.py           # the algorithm: watershed, RAG, growing, arbitration
@@ -211,13 +211,13 @@ pyhrg/
 
 ## Citation
 
-If you use pyHRG in your research, please cite the software and the work it builds on:
+If you use pycacumen in your research, please cite the software and the work it builds on:
 
 **This implementation**
 
-> Pawelec, I. (2026). *pyHRG: individual tree crown delineation from canopy height models by Hierarchical Region Growing* [Software]. https://github.com/igorpawelec/pyhrg
+> Pawelec, I. (2026). *pycacumen: individual tree crown delineation from canopy height models by Hierarchical Region Growing* [Software]. https://github.com/igorpawelec/pycacumen
 
-**Upstream project.** pyHRG is a derivative of PyCrown and keeps its pipeline structure:
+**Upstream project.** pycacumen is a derivative of PyCrown and keeps its pipeline structure:
 
 > Zörner, J., Dymond, J., Shepherd, J., Jolly, B. (2018). *PyCrown — Fast raster-based individual tree segmentation for LiDAR data.* Landcare Research NZ Ltd. https://doi.org/10.7931/M0SR-DN55
 >
@@ -237,7 +237,7 @@ See [CITATION.cff](CITATION.cff) for machine-readable metadata.
 
 GNU General Public License v3.0 — see [LICENSE](LICENSE).
 
-pyHRG derives from PyCrown, which is published under GPLv3; the licence carries over.
+pycacumen derives from PyCrown, which is published under GPLv3; the licence carries over.
 
 ## Contributing
 

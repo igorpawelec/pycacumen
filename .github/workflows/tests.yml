@@ -38,10 +38,10 @@ jobs:
         # package somewhere the tests cannot see, the failure otherwise
         # surfaces later as a bare ModuleNotFoundError from pytest, which
         # says nothing about where it went wrong.
-        run: python -c "import pyhrg; print(pyhrg.__name__, pyhrg.__version__, pyhrg.__file__)"
+        run: python -c "import pycacumen; print(pycacumen.__name__, pycacumen.__version__, pycacumen.__file__)"
 
       - name: Lint
-        run: python -m pyflakes pyhrg/ tests/ examples/
+        run: python -m pyflakes pycacumen/ tests/ examples/
 
       - name: Test
         run: python -m pytest -v

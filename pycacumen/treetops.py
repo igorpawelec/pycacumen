@@ -1,5 +1,5 @@
 """
-pyhrg.treetops — tree top detection, merging and screening.
+pycacumen.treetops — tree top detection, merging and screening.
 
 Tree tops are found as local maxima of a smoothed CHM, the standard
 raster approach to individual tree detection (Popescu & Wynne 2004). The
@@ -55,7 +55,7 @@ def detect_tops(chm, hmin=2.0, ws=3):
     Parameters
     ----------
     chm : ndarray, shape (rows, cols)
-        Canopy height model. Smooth it first (:func:`pyhrg.chm.smooth_chm`);
+        Canopy height model. Smooth it first (:func:`pycacumen.chm.smooth_chm`);
         on a raw CHM this will over-detect badly.
     hmin : float
         Minimum height for a pixel to be considered. Sets the floor
@@ -64,7 +64,7 @@ def detect_tops(chm, hmin=2.0, ws=3):
         Neighbourhood size in pixels. Acts as the minimum spacing between
         detected tops: too small over-detects one tree as many, too large
         merges neighbouring trees. Over-detection is the safer error here,
-        since :func:`pyhrg.hrg.HierarchicalRegionGrower.run_all` can merge
+        since :func:`pycacumen.hrg.HierarchicalRegionGrower.run_all` can merge
         surplus tops back together.
 
     Returns
@@ -215,7 +215,7 @@ def as_pixels(tops):
     Returns
     -------
     pixels : list of (int, int)
-        Suitable for :meth:`pyhrg.hrg.HierarchicalRegionGrower.run_all`.
+        Suitable for :meth:`pycacumen.hrg.HierarchicalRegionGrower.run_all`.
     """
     tops = _as_tops_array(tops)
     return [(int(r), int(c)) for r, c in np.floor(tops)]

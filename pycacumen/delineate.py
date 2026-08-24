@@ -1,11 +1,11 @@
 """
-pyhrg.delineate — the end-to-end pipeline.
+pycacumen.delineate — the end-to-end pipeline.
 
 :class:`CrownDelineator` chains smoothing, tree top detection and
 hierarchical region growing, holding the intermediate state so the steps
 can be inspected and re-run individually. It is a convenience layer: each
-stage is an ordinary function in :mod:`pyhrg.chm`, :mod:`pyhrg.treetops`
-and :mod:`pyhrg.hrg`, and can be used on its own.
+stage is an ordinary function in :mod:`pycacumen.chm`, :mod:`pycacumen.treetops`
+and :mod:`pycacumen.hrg`, and can be used on its own.
 
 Copyright (C) 2025 Igor Pawelec
 Licence: GPLv3 — see LICENSE.
@@ -110,14 +110,14 @@ class CrownDelineator:
     # ── pipeline steps ───────────────────────────────────────────────
 
     def smooth(self, ws=3, method="median"):
-        """Smooth the CHM. See :func:`pyhrg.chm.smooth_chm`. Returns self."""
+        """Smooth the CHM. See :func:`pycacumen.chm.smooth_chm`. Returns self."""
         self.smoothed = smooth_chm(self.chm, ws=ws, method=method)
         self._say(f"smooth: {method} ws={ws}, range "
                   f"{np.nanmin(self.smoothed):.1f}-{np.nanmax(self.smoothed):.1f} m")
         return self
 
     def detect(self, hmin=2.0, ws=3):
-        """Detect tree tops. See :func:`pyhrg.treetops.detect_tops`. Returns self."""
+        """Detect tree tops. See :func:`pycacumen.treetops.detect_tops`. Returns self."""
         if self.smoothed is None:
             self.smooth(ws=3)
         self.tops = detect_tops(self.smoothed, hmin=hmin, ws=ws)
@@ -125,7 +125,7 @@ class CrownDelineator:
         return self
 
     def merge(self, distance=5.0):
-        """Merge nearby tops. See :func:`pyhrg.treetops.merge_tops`. Returns self."""
+        """Merge nearby tops. See :func:`pycacumen.treetops.merge_tops`. Returns self."""
         if self.tops is None:
             raise ValueError("call detect() before merge()")
         before = len(self.tops)
@@ -134,7 +134,7 @@ class CrownDelineator:
         return self
 
     def screen(self, hmin):
-        """Drop short tops. See :func:`pyhrg.treetops.screen_tops`. Returns self."""
+        """Drop short tops. See :func:`pycacumen.treetops.screen_tops`. Returns self."""
         if self.tops is None:
             raise ValueError("call detect() before screen()")
         before = len(self.tops)
@@ -159,7 +159,7 @@ class CrownDelineator:
         Grow crowns from the tree tops.
 
         Thin wrapper over
-        :meth:`pyhrg.hrg.HierarchicalRegionGrower.run_all` — see that
+        :meth:`pycacumen.hrg.HierarchicalRegionGrower.run_all` — see that
         method for the full meaning of each parameter.
 
         Returns
@@ -272,9 +272,9 @@ def delineate_crowns(chm,
     chm : ndarray or str or Path
         A CHM array, or a path to a raster.
     smooth_ws, smooth_method
-        Passed to :func:`pyhrg.chm.smooth_chm`.
+        Passed to :func:`pycacumen.chm.smooth_chm`.
     hmin, detect_ws
-        Passed to :func:`pyhrg.treetops.detect_tops`.
+        Passed to :func:`pycacumen.treetops.detect_tops`.
     merge_distance : float, optional
         If given, merge tops within this radius.
     screen_hmin : float, optional

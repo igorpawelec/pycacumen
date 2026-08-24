@@ -1,5 +1,5 @@
 """
-pyHRG quickstart — runs on a synthetic stand, no data files needed.
+pycacumen quickstart — runs on a synthetic stand, no data files needed.
 
     python examples/quickstart.py
 
@@ -10,8 +10,8 @@ Shows the three things worth understanding about the algorithm:
 """
 import numpy as np
 
-from pyhrg import CrownDelineator, delineate_crowns
-from pyhrg.hrg import CONFLICT_RULES
+from pycacumen import CrownDelineator, delineate_crowns
+from pycacumen.hrg import CONFLICT_RULES
 
 
 def synthetic_stand(n=140, seed=7):
