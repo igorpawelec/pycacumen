@@ -1,6 +1,6 @@
 # pycacumen
 
-<img src="https://raw.githubusercontent.com/igorpawelec/pycacumen/main/www/logopy.png" alt="pycacumen logo" align="right" width="200"/>
+<img src="https://raw.githubusercontent.com/igorpawelec/pycacumen/main/www/pycacumen.png" alt="pycacumen logo" align="right" width="200"/>
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org)
