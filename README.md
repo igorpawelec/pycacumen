@@ -2,6 +2,8 @@
 
 <img src="https://raw.githubusercontent.com/igorpawelec/pycacumen/main/www/pycacumen.png" alt="pycacumen logo" align="right" width="200"/>
 
+[![tests](https://github.com/igorpawelec/pycacumen/actions/workflows/tests.yml/badge.svg)](https://github.com/igorpawelec/pycacumen/actions/workflows/tests.yml)
+[![Release](https://img.shields.io/github/v/release/igorpawelec/pycacumen)](https://github.com/igorpawelec/pycacumen/releases)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org)
 
