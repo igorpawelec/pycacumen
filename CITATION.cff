@@ -10,14 +10,15 @@ abstract: >-
   the segmentation is reproducible regardless of tree-top order.
 type: software
 version: "0.6.0"
-date-released: "2026-07-22"
+date-released: "2026-08-24"
 license: "GPL-3.0-or-later"
 repository-code: "https://github.com/igorpawelec/pycacumen"
 authors:
-  - family-names: "Pawelec"
-    given-names: "Igor"
+  - family-names: Pawelec
+    given-names: Igor
+    affiliation: "University of Agriculture in Kraków, Poland"
+    email: igor.pawelec@urk.edu.pl
     orcid: "https://orcid.org/0009-0005-9798-3596"
-    affiliation: "University of Agriculture in Krakow, Faculty of Forestry"
 keywords:
   - tree crown delineation
   - individual tree segmentation
