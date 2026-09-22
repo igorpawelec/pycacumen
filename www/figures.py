@@ -118,7 +118,7 @@ fig.savefig(os.path.join(HERE, "pipeline.png"), dpi=160, bbox_inches="tight", fa
 # ---- figure 2: the main lever --------------------------------------------------
 fig, axes = plt.subplots(1, 3, figsize=(11.4, 4.1))
 for ax, (vt, (crowns, n, a, gone)) in zip(axes, runs.items()):
-    panel(ax, cd.smoothed, vmax, f"variance_thresh = {vt:g}\n{n} crowns, {a} tops absorbed")
+    panel(ax, cd.smoothed, vmax, f"variance_thresh = {vt:g}\n{n} crowns, {a} top{'s' if a != 1 else ''} absorbed")
     draw_crowns(ax, crowns)
     draw_tops(ax, kept[~gone], size=8)
     draw_tops(ax, kept[gone], size=30, filled=False)
