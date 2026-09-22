@@ -9,29 +9,47 @@
 
 **Individual tree crown delineation from canopy height models, by Hierarchical Region Growing.**
 
-Pure Python + Numba. No compiled extensions, no external binaries.
+A canopy height model goes in; a crown per tree comes out, as a label raster and as polygons. Pure Python + Numba, no compiled extensions, no external binaries.
 
-> **R users:** an R implementation of the same algorithm lives in [rcacumen](https://github.com/igorpawelec/rcacumen). The two are separate packages by design — installation, tooling and idioms differ too much to share a repository — but they implement the same method and are validated against each other — exactly on the shared synthetic suite, and to within 0.25 % of watershed pixels on real canopy height models, where the two break plateau ties differently.
+> **R users:** the same algorithm lives in [rcacumen](https://github.com/igorpawelec/rcacumen). The two are separate packages by design — installation, tooling and idioms differ too much to share a repository — and are validated against each other: exactly on the shared synthetic suite, and to within 0.25 % of watershed pixels on real canopy height models, where the two break plateau ties differently.
 
-## Background
+## The problem it solves
 
-Delineating individual crowns from a canopy height model runs into one persistent problem: **tree tops are over-detected**. A single broad crown has a ragged upper surface, so local-maximum detection finds several peaks on it. Lower the sensitivity and you start losing real trees instead.
+Every crown delineation that starts from a canopy height model meets the same obstacle: **tree tops are over-detected**. The upper surface of a broad crown is ragged, so a local-maximum detector finds several peaks on it. The usual remedy is to smooth harder or to raise the detection threshold, and both trade one error for another: the surplus peaks disappear together with the small, suppressed trees that were real.
 
-pycacumen treats that as the central problem rather than a preprocessing nuisance. Surplus tree tops are allowed, and the growing merges them back:
+pycacumen does not try to get the tops right first. It accepts the surplus and corrects it afterwards, in the growing itself:
 
-1. **Watershed.** Tree tops seed a marker-based watershed on the inverted CHM. This yields *exactly one region per tree top* — so the regions **are** the detected trees.
-2. **Region adjacency graph.** Neighbouring regions get a weighted edge,
-   *w(a,b) = α·|Δμ| + β·|Δσ| + γ/(border+1)*, stored as CSR arrays. Region statistics come from the same single pixel pass.
-3. **Growing.** Each tree grows greedily, absorbing neighbours while the combined height variance stays under a threshold. When two trees absorb each other, they are one crown — this is how over-detection is corrected.
-4. **Arbitration.** Growing runs independently per seed, so two crowns can claim the same region. Those claims are settled on the data (taller tree, nearest tree, or best height match) rather than on iteration order, which makes the segmentation reproducible regardless of how the tree tops were ordered.
+1. **Watershed.** Every tree top seeds a marker-based watershed on the inverted CHM, so there is exactly one region per top — the regions *are* the detected trees.
+2. **Region adjacency graph.** Neighbouring regions are joined by a weighted edge, *w(a,b) = α·|Δμ| + β·|Δσ| + γ/(border+1)*, and the region statistics come from the same single pixel pass.
+3. **Growing.** Each tree grows greedily, absorbing neighbours while the combined height variance stays under a threshold. When two trees absorb each other, they were one crown — this is where over-detection is undone.
+4. **Arbitration.** Growing runs independently per seed, so two crowns can claim the same region. The claim is settled on the data — the taller tree, the nearer tree, or the better height match — never on iteration order, so the result does not depend on how the tops were sorted.
 
-`variance_thresh` is the main control: it sets how much height variation a single crown may contain, and therefore how readily neighbouring trees merge.
+<img src="https://raw.githubusercontent.com/igorpawelec/pycacumen/main/www/pipeline.png" alt="A 0.5 m canopy height model of a circular sample plot; the same tile with 253 local maxima of which 213 are kept as tree tops; and the 212 crowns delineated from them, drawn as outlines over the height model" width="100%"/>
 
-### Relation to PyCrown
+*A 100 × 100 m tile of a 0.5 m canopy height model (`test_data/chm_150_2014.tif`, a mature stand on a circular sample plot). Left: the input. Middle: 253 local maxima after median smoothing (`hmin` 7 m, 5 px window), of which 213 survive merging within 5 px and screening below 10 m — the filled markers. Right: the 212 crowns grown from them at the default `variance_thresh` of 2. Made by `www/figures.py`.*
 
-pycacumen began as a fork of [PyCrown](https://github.com/manaakiwhenua/pycrown) (Zörner et al. 2018) and keeps its pipeline shape — smooth the CHM, find tree tops as local maxima, delineate crowns. **The Dalponte & Coomes delineation that PyCrown re-implements is not part of pycacumen**; hierarchical region growing is the only method here. If you want Dalponte, use PyCrown, [lidR](https://github.com/r-lidar/lidR) or [itcSegment](https://cran.r-project.org/package=itcSegment) — they do it well and there is no reason to duplicate them.
+## The one parameter that matters
 
-Differences from that lineage worth knowing:
+`variance_thresh` is the height variance (σ², in m²) a single crown may contain. It sets how readily a tree absorbs its neighbours, and therefore how many of the surplus tops are merged back. Everything else has a sensible default; this one you choose per stand.
+
+<img src="https://raw.githubusercontent.com/igorpawelec/pycacumen/main/www/variance_thresh.png" alt="The same tile delineated at variance_thresh 2, 8 and 20: 212, 203 and 123 crowns; the tree tops absorbed into a neighbouring crown are drawn as hollow rings and cluster where crowns merged" width="100%"/>
+
+*The same 213 tree tops grown at `variance_thresh` 2, 8 and 20. Filled markers are tops that ended up as a crown of their own; hollow rings are tops absorbed into a neighbour — 1, 10 and 90 of them. At 2 almost nothing merges and every peak on a broad crown stays a separate tree; at 20 the merging reaches across real crown boundaries in the dense south-east of the plot. The right value lies where the absorbed tops are the ragged-surface duplicates and not the suppressed neighbours, which is a judgement made by looking, and the point of drawing them.*
+
+Two further controls shape the outcome:
+
+- **`conflict_rule`** decides who gets contested canopy: the taller tree (`'height'`, the default — dominant trees overtop their neighbours), the nearer seed (`'distance'`, classic ITC behaviour, splits rather than merges) or the better height match (`'similarity'`).
+- **`protect_seeds=True`** switches merging off entirely: every top keeps its crown. Use it when the tops are trusted, for instance field-measured stem positions.
+
+The number of regions claimed by more than one crown is reported after every run (`grower.n_contested`); it grows with the threshold and is the quickest sign that a setting is too loose.
+
+## When to use it, and when not
+
+Use pycacumen when you have a canopy height model — from ALS, from photogrammetric point clouds, at any resolution around 0.25–1 m — and want one crown per tree with a defensible answer to over-detection. Bring your own tree tops if you have better ones; the growing works from any set of seeds.
+
+Do not reach for it when you need Dalponte & Coomes delineation, or want to work on the point cloud directly: [PyCrown](https://github.com/manaakiwhenua/pycrown), [lidR](https://github.com/r-lidar/lidR) and [itcSegment](https://cran.r-project.org/package=itcSegment) do that well, and pycacumen deliberately does not duplicate them.
+
+pycacumen began as a fork of PyCrown (Zörner et al. 2018) and keeps its pipeline shape — smooth the CHM, find tree tops as local maxima, delineate crowns — but hierarchical region growing is the only delineation here.
 
 | | PyCrown | pycacumen |
 |---|---|---|
@@ -39,6 +57,19 @@ Differences from that lineage worth knowing:
 | Over-detected tops | filtered out beforehand | merged by the growing |
 | Contested canopy | n/a | arbitrated explicitly, reproducibly |
 | Point cloud I/O | yes (laspy) | no — CHM raster in, crowns out |
+
+### The package family
+
+pycacumen is one step of a longer chain; the other steps are separate packages, each with a Python and an R twin.
+
+| Step | Python | R |
+|---|---|---|
+| Colour-space conversion of orthophotos | [pygeopalette](https://github.com/igorpawelec/pygeopalette) | [rgeopalette](https://github.com/igorpawelec/rgeopalette) |
+| Adaptive superpixels and seeded growing on orthophotos | [pygeoadaptels](https://github.com/igorpawelec/pygeoadaptels) | [rgeoadaptels](https://github.com/igorpawelec/rgeoadaptels) |
+| Crowns from a canopy height model | **pycacumen** | [rcacumen](https://github.com/igorpawelec/rcacumen) |
+| Standing dead trees on orthophotos | [pygeosnag](https://github.com/igorpawelec/pygeosnag) | — |
+| The same, inside QGIS | [qgis-geoadaptels-geopalette](https://github.com/igorpawelec/qgis-geoadaptels-geopalette), [qgis-geosnag](https://github.com/igorpawelec/qgis-geosnag) | |
+| Polish national geodata (GUGiK, BDL) | — | [rgeopl](https://github.com/igorpawelec/rgeopl) |
 
 ## Installation
 
@@ -73,6 +104,14 @@ crowns, tops = delineate_crowns("chm.tif", hmin=7, merge_distance=5.0,
                                 variance_thresh=2.0)
 ```
 
+From the command line:
+
+```bash
+pycacumen -i chm.tif -o crowns.tif --hmin 7 --variance-thresh 2.0
+pycacumen -i chm.tif -o crowns.tif --vector out/ --merge-distance 5 --screen-hmin 10
+python -m pycacumen --help
+```
+
 ### Arrays, without touching the disk
 
 Every stage is a plain function. Nothing in the algorithm needs a file path:
@@ -99,15 +138,9 @@ Read a window; the geotransform is shifted to match, so exported crowns stay geo
 cd = CrownDelineator.from_file("big_chm.tif", window=(1000, 500, 2000, 2000))
 ```
 
-### Command line
+## Reference
 
-```bash
-pycacumen -i chm.tif -o crowns.tif --hmin 7 --variance-thresh 2.0
-pycacumen -i chm.tif -o crowns.tif --vector out/ --merge-distance 5 --screen-hmin 10
-python -m pycacumen --help
-```
-
-## Parameters
+### Parameters
 
 **Smoothing** — `smooth_chm(chm, ws, method)`
 
@@ -134,24 +167,15 @@ python -m pycacumen --help
 | `alpha`, `beta`, `gamma` | 1.0, 0.5, 0.1 | Edge weights: mean diff, σ diff, inverse border length |
 | `anneal_lambda` | 1.0 | Per-iteration tightening of the threshold. 1.0 = constant |
 | `max_iters` | `None` | Cap on grow iterations per seed. `None` grows to natural termination |
-| `conflict_rule` | `'height'` | Who wins contested canopy — see below |
+| `conflict_rule` | `'height'` | Who wins contested canopy — see above |
 | `protect_seeds` | `False` | If True, no tree is ever absorbed; every top yields a crown |
 | `retry_rejected` | `False` | Reconsider regions rejected earlier in the same grow |
 | `n_jobs` | 1 | Parallel processes. -1 = all cores |
 
-### Conflict rules
+Ties in the conflict rules resolve to the lower crown id, so output is fully reproducible.
 
-Two crowns can claim the same region. `conflict_rule` decides who gets it:
-
-- **`'height'`** (default) — the taller tree wins. Dominant trees overtop their neighbours, so ambiguous canopy goes to the taller crown.
-- **`'distance'`** — the nearest seed wins, by distance from the region centroid. Classic ITC behaviour; splits rather than merges.
-- **`'similarity'`** — the tree whose apex height best matches the region's mean height wins.
-
-Ties resolve to the lower crown id, so output is fully reproducible. The count of contested regions is available afterwards as `grower.n_contested`.
-
-`protect_seeds=True` disables merging entirely — every input tree top keeps its own crown. Use it when the tops are trusted, e.g. field-measured.
-
-## Notes on behaviour
+<details>
+<summary><b>Notes on behaviour</b></summary>
 
 **The crown count can be lower than the tree-top count.** That is the point: merged trees leave gaps in the id sequence. If you need one crown per top, use `protect_seeds=True`.
 
@@ -159,30 +183,28 @@ Ties resolve to the lower crown id, so output is fully reproducible. The count o
 
 **`n_jobs > 1` is worth it only on large scenes.** The graph is shared per worker rather than per task, but process start-up still costs ~0.1 s each, and growing is cheap per tree (~0.4 s for 1150 trees). Results are identical to sequential either way.
 
-## Performance
+</details>
 
-Numba compiles the one place that touches every pixel: the single pass that
-builds the region adjacency graph and the per-region statistics together.
-On a 1000x1000 px CHM with 4900 trees that pass takes **9.7 ms**, against
-128 ms for an equivalent written with `numpy.bincount` — a 13x gap, mostly
-because it does in one pass what numpy needs several for.
+<details>
+<summary><b>Performance</b></summary>
 
-The grow loop is deliberately *not* compiled. It is driven by a heap and set
-membership, which Numba does not handle well, and it runs once per tree
-rather than once per pixel — roughly 0.4 s for 1150 trees. It is not the
-bottleneck.
+Numba compiles the one place that touches every pixel: the single pass that builds the region adjacency graph and the per-region statistics together. On a 1000x1000 px CHM with 4900 trees that pass takes **9.7 ms**, against 128 ms for an equivalent written with `numpy.bincount` — a 13x gap, mostly because it does in one pass what numpy needs several for.
 
-First call in a session pays the JIT compilation cost (~2 s); `cache=True`
-means later runs read the compiled code from disk.
+The grow loop is deliberately *not* compiled. It is driven by a heap and set membership, which Numba does not handle well, and it runs once per tree rather than once per pixel — roughly 0.4 s for 1150 trees. It is not the bottleneck.
 
-## Testing
+First call in a session pays the JIT compilation cost (~2 s); `cache=True` means later runs read the compiled code from disk.
+
+</details>
+
+<details>
+<summary><b>Testing, repository layout, requirements</b></summary>
 
 ```bash
 pip install -e ".[test]"
 pytest tests/ -v
 ```
 
-## Repository structure
+The README figures are remade with `python www/figures.py` from the tiles in `test_data/`.
 
 ```
 pycacumen/
@@ -196,6 +218,8 @@ pycacumen/
 │   ├── io.py            # raster/vector I/O (rasterio, fiona)
 │   └── cli.py           # command line
 ├── tests/
+├── test_data/           # seven 0.5 m CHM tiles of circular sample plots
+├── www/                 # logo and the README figures, with the script that makes them
 ├── examples/
 ├── pyproject.toml
 ├── environment.yaml
@@ -205,11 +229,11 @@ pycacumen/
 └── LICENSE
 ```
 
-## Requirements
-
 - Python ≥ 3.9
 - NumPy ≥ 1.21, Numba ≥ 0.56, SciPy ≥ 1.7, scikit-image ≥ 0.19
 - Rasterio ≥ 1.3, Fiona ≥ 1.9 *(only for file I/O)*
+
+</details>
 
 ## Citation
 
