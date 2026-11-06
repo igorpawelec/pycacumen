@@ -798,13 +798,22 @@ class HierarchicalRegionGrower:
                        variance_thresh, max_iters, anneal_lambda,
                        retry_rejected)
 
-        results = {}
-        if n_jobs > 1 and n_seeds > 1:
-            n_workers = min(n_jobs, n_seeds)
+        # A seed on a cell the mask removed (no data, below mask_thresh,
+        # cleaned away by morpho_radius) gets no watershed region: it has
+        # nothing to grow from and yields no crown, like an absorbed tree.
+        # The last seed in that state used to index past the region arrays.
+        n_regions = len(self.reg_n)
+        growing = [sid for sid in seed_ids
+                   if sid < n_regions and self.reg_n[sid] > 0]
+        self.n_without_region = n_seeds - len(growing)
+
+        results = {sid: set() for sid in seed_ids}
+        if n_jobs > 1 and len(growing) > 1:
+            n_workers = min(n_jobs, len(growing))
             # Several chunks per worker: enough to even out uneven grow
             # times, few enough to keep task overhead negligible.
-            n_chunks = min(n_workers * 4, n_seeds)
-            chunks = [c for c in np.array_split(np.array(seed_ids), n_chunks)
+            n_chunks = min(n_workers * 4, len(growing))
+            chunks = [c for c in np.array_split(np.array(growing), n_chunks)
                       if len(c)]
             with ProcessPoolExecutor(
                 max_workers=n_workers,
@@ -816,7 +825,7 @@ class HierarchicalRegionGrower:
                         results[sid] = members
         else:
             # Sequential — call the grow directly, no worker context needed.
-            for sid in seed_ids:
+            for sid in growing:
                 results[sid] = _hierarchical_grow_single(sid, *common_args)
 
         # 6) Arbitrate regions claimed by more than one crown.

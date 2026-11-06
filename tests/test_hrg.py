@@ -175,6 +175,32 @@ class TestGrower:
             tops, variance_thresh=6.0, mask_thresh=1.0, morpho_radius=2)
         assert out.shape == chm.shape
 
+    @pytest.mark.parametrize("where", ["last", "first", "middle"])
+    def test_seed_without_a_watershed_region_yields_no_crown(self, stand, where):
+        """A seed on a cell the mask removes used to raise IndexError when it was the last one."""
+        chm, tops = stand
+        masked = (0, 0)                          # background, below mask_thresh
+        assert chm[masked] < 1.0
+        k = {"last": len(tops), "first": 0, "middle": len(tops) // 2}[where]
+        seeds = tops[:k] + [masked] + tops[k:]
+        g = HierarchicalRegionGrower(chm)
+        out = g.run_all(seeds, variance_thresh=6.0, mask_thresh=1.0)
+        ref = HierarchicalRegionGrower(chm).run_all(tops, variance_thresh=6.0,
+                                                    mask_thresh=1.0)
+        assert g.n_without_region == 1
+        assert k + 1 not in np.unique(out)       # the masked seed's crown id stays unused
+        # the other crowns are those of a run without that seed, ids shifted past it
+        shifted = np.where(ref > k, ref + 1, ref)
+        np.testing.assert_array_equal(out, shifted)
+
+    def test_seed_on_no_data_with_parallel_grows(self, stand):
+        chm, tops = stand
+        chm = chm.copy()
+        chm[0, 0] = np.nan
+        out = HierarchicalRegionGrower(chm).run_all(
+            tops + [(0, 0)], variance_thresh=6.0, mask_thresh=1.0, n_jobs=2)
+        assert len(tops) + 1 not in np.unique(out)
+
     def test_background_is_zero(self, stand):
         chm, tops = stand
         out = HierarchicalRegionGrower(chm).run_all(tops, variance_thresh=6.0,

@@ -1,6 +1,19 @@
 # Changelog
 
 
+## [0.6.1] — 2026-11-06
+
+### Fixed
+- **`run_all` raised `IndexError` when the last tree top had no watershed
+  region.** A seed on a cell the mask removes (no data, below `mask_thresh`,
+  cleaned away by `morpho_radius`) gets no region, so it has nothing to grow
+  from. As the last seed its id lay past the region arrays and the run
+  crashed; elsewhere in the list it grew an empty region. Such a seed now
+  yields no crown, like an absorbed tree, its crown id stays unused, and
+  `n_without_region` says how many there were. Found through OBIAStudio,
+  where tree tops come from a CHM with no-data patches.
+
+
 ## [0.6.0] — 2026-08-24
 
 ### Changed

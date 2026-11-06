@@ -9,8 +9,8 @@ abstract: >-
   does not separate them. Contested canopy is arbitrated on the data, so
   the segmentation is reproducible regardless of tree-top order.
 type: software
-version: "0.6.0"
-date-released: "2026-08-24"
+version: "0.6.1"
+date-released: "2026-11-06"
 license: "GPL-3.0-or-later"
 repository-code: "https://github.com/igorpawelec/pycacumen"
 authors:
